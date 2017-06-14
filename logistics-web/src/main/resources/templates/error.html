@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <head th:replace="common/head :: head"></head>
+    <title>Error~!</title>
+</head>
+<body class="hold-transition lockscreen">
+<!-- Automatic element centering -->
+<div class="lockscreen-wrapper" style="max-width: 500px">
+    <div class="lockscreen-logo">
+        <a th:href="@{/}" href="/"><b>返回首页</b></a>
+    </div>
+    <!-- User name -->
+    <div class="lockscreen-name"><span sec:authentication="name"></span></div>
+
+    <div class="help-block text-center">
+        There was an unexpected error (type=<span th:text="${error}">Bad</span>, status=<span th:text="${status}">500</span>).
+    </div>
+
+    <div th:text="${message}" class="text-center">
+        Or sign in as a different user
+    </div>
+
+    <div class="text-center">
+        请联系管理员获得更多信息。
+    </div>
+
+    <div class="lockscreen-footer text-center">
+        Copyright &copy; 2014-2016 <b>柯米思</b><br/>
+        All rights reserved
+    </div>
+</div>
+<!-- /.center -->
+
+<!-- jQuery 2.2.3 -->
+<script th:src="@{/plugins/jQuery/jquery-2.2.3.min.js}" src="../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<!-- Bootstrap 3.3.6 -->
+<script th:src="@{/bootstrap/js/bootstrap.min.js}" src="../static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

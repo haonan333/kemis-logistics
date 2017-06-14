@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kemis.dao.mapper.ShipOrderSourceMapper">
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        SELECT count(*) FROM ship_order_source
+        <where>
+            <if test="province != null"> and province = #{province}</if>
+            <if test="city != null"> and city = #{city}</if>
+            <if test="district != null"> and district = #{district}</if>
+            <if test="school != null"> and school = #{school}</if>
+            <if test="consignee != null"> and consignee = #{consignee}</if>
+            <if test="expressNumber != null"> and expressNumber = #{expressNumber}</if>
+        </where>
+    </select>
+
+    <select id="selectByMap" resultMap="ResultMapWithBLOBs">
+        SELECT <include refid="Base_Column_List"/>,<include refid="Blob_Column_List"/> FROM ship_order_source
+        <where>
+            <if test="province != null"> and province = #{province}</if>
+            <if test="city != null"> and city = #{city}</if>
+            <if test="district != null"> and district = #{district}</if>
+            <if test="school != null"> and school = #{school}</if>
+            <if test="consignee != null"> and consignee = #{consignee}</if>
+            <if test="expressNumber != null"> and expressNumber = #{expressNumber}</if>
+        </where>
+        <if test="orderName != null and orderDir != null"> order by ${orderName} ${orderDir} </if>
+        <if test="start != null and limit != null"> limit #{start},#{limit}</if>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kemis.dao.mapper.ExpressMapper">
+
+    <sql id="Join_Column_List">
+        e.expressId, e.batchNo, e.expressCompany, e.expressNumber, e.`type`, e.delivery, e.exportTag, e.price, e.weight,
+        e.expressConsignee, e.expressMobile, e.expressSchool, e.expressProvince, e.expressCity, e.expressDistrict,
+        e.expressAddress, e.remark, e.`status`, e.createTime, e.updateTime
+    </sql>
+
+    <select id="countByExportDispatchedExpressRequest"
+            parameterType="cn.kemis.domain.request.ExportDispatchedExpressRequest" resultType="integer">
+        select
+        count(1)
+        from express e INNER JOIN work_process wp ON e.expressNumber = wp.expressNumber
+        <where>
+            <if test="dateStart != null">
+                AND wp.createTime BETWEEN #{dateStart} and #{dateEnd}
+            </if>
+            <if test="expressSchool != null and expressSchool != ''">
+                and e.expressSchool like '%${expressSchool}%'
+            </if>
+            <if test="expressNumber != null and expressNumber != ''">
+                and e.expressNumber = #{expressNumber}
+            </if>
+            <if test="expressCompany != null and expressCompany != ''">
+                and e.expressCompany like '%${expressCompany}%'
+            </if>
+            <if test="delivery != null and delivery != ''">
+                and e.delivery = #{delivery}
+            </if>
+            <if test="expressAddress != null and expressAddress != ''">
+                and e.expressAddress like '%${expressAddress}%'
+            </if>
+            <if test="expressConsignee != null and expressConsignee != ''">
+                and e.expressConsignee like '%${expressConsignee}%'
+            </if>
+            <if test="expressMobile != null and expressMobile != ''">
+                and e.expressMobile like '%${expressMobile}%'
+            </if>
+            <if test="type != null and type != ''">
+                and e.`type` = #{type}
+            </if>
+            <if test="workProcess != null and workProcess != ''">
+                and wp.`workProcess` = #{workProcess}
+            </if>
+        </where>
+    </select>
+
+  <select id="selectByExportDispatchedExpressRequest"
+          parameterType="cn.kemis.domain.request.ExportDispatchedExpressRequest" resultType="cn.kemis.domain.ExpressWorkProcessDomain">
+      select
+      <include refid="Join_Column_List" />, wp.workProcess, wp.createTime AS workProcessCreateTime
+      from express e INNER JOIN work_process wp ON e.expressNumber = wp.expressNumber
+      <where>
+          <if test="dateStart != null">
+              AND wp.createTime BETWEEN #{dateStart} and #{dateEnd}
+          </if>
+          <if test="batchNo != null and batchNo != ''">
+              and e.batchNo = '${batchNo}'
+          </if>
+          <if test="expressProvince != null and expressProvince != ''">
+              and e.expressProvince = '${expressProvince}'
+          </if>
+          <if test="expressCity != null and expressCity != ''">
+              and e.expressCity = '${expressCity}'
+          </if>
+          <if test="expressDistrict != null and expressDistrict != ''">
+              and e.expressDistrict = '${expressDistrict}'
+          </if>
+          <if test="expressSchool != null and expressSchool != ''">
+              and e.expressSchool like '%${expressSchool}%'
+          </if>
+          <if test="expressNumber != null and expressNumber != ''">
+              and e.expressNumber = #{expressNumber}
+          </if>
+          <if test="expressCompany != null and expressCompany != ''">
+              and e.expressCompany like '%${expressCompany}%'
+          </if>
+          <if test="delivery != null and delivery != ''">
+              and e.delivery = #{delivery}
+          </if>
+          <if test="expressAddress != null and expressAddress != ''">
+              and e.expressAddress like '%${expressAddress}%'
+          </if>
+          <if test="expressConsignee != null and expressConsignee != ''">
+              and e.expressConsignee like '%${expressConsignee}%'
+          </if>
+          <if test="expressMobile != null and expressMobile != ''">
+              and e.expressMobile like '%${expressMobile}%'
+          </if>
+          <if test="type != null and type != ''">
+              and e.`type` = #{type}
+          </if>
+          <if test="workProcess != null and workProcess != ''">
+              and wp.`workProcess` = #{workProcess}
+          </if>
+      </where>
+      order by expressId asc
+      <!--<if test="limit != 0">
+          limit ${start}, ${limit}
+      </if>-->
+  </select>
+
+    <!--未打包数据统计 总数-->
+    <select id="countUnPackageByMap" resultType="java.lang.Integer">
+        select count(1) from express e
+        <where>
+            not EXISTS (select 1 from work_process wp where wp.expressNumber = e.expressNumber and wp.workProcess = 'package')
+            <if test="expressId != null"> and e.expressId = #{expressId}</if>
+            <if test="batchNo != null"> and e.batchNo = #{batchNo}</if>
+            <if test="expressNumber != null"> and e.expressNumber = #{expressNumber}</if>
+            <if test="expressConsignee != null"> and e.expressConsignee = #{expressConsignee}</if>
+            <if test="expressMobile != null"> and e.expressMobile = #{expressMobile}</if>
+            <if test="expressProvince != null"> and e.expressProvince = #{expressProvince}</if>
+            <if test="expressCity != null"> and e.expressCity = #{expressCity}</if>
+            <if test="expressDistrict != null"> and e.expressDistrict = #{expressDistrict}</if>
+            <if test="startTime != null and endTime != null">
+                and e.createTime between #{startTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <!--未打包数据统计 列表-->
+    <select id="selectUnPackageByMap" parameterType="map" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from express e
+        <where>
+            not EXISTS (select 1 from work_process wp where wp.expressNumber = e.expressNumber and wp.workProcess = 'package')
+            <if test="expressId != null"> and e.expressId = #{expressId}</if>
+            <if test="batchNo != null"> and e.batchNo = #{batchNo}</if>
+            <if test="expressNumber != null"> and e.expressNumber = #{expressNumber}</if>
+            <if test="expressConsignee != null"> and e.expressConsignee = #{expressConsignee}</if>
+            <if test="expressMobile != null"> and e.expressMobile = #{expressMobile}</if>
+            <if test="expressProvince != null"> and e.expressProvince = #{expressProvince}</if>
+            <if test="expressCity != null"> and e.expressCity = #{expressCity}</if>
+            <if test="expressDistrict != null"> and e.expressDistrict = #{expressDistrict}</if>
+            <if test="startTime != null and endTime != null">
+                and e.createTime between #{startTime} and #{endTime}
+            </if>
+        </where>
+        <if test="start != null and limit != null"> limit #{start} , #{limit}</if>
+    </select>
+</mapper>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kemis.dao.mapper.WorkProcessMapper">
+
+  <!-- 计件统计 查询个数 -->
+  <select id="countUser" resultType="java.lang.Integer">
+    select count(1) from (
+      select userId , workProcess  from work_process
+      <where>
+        status = '0'
+        <if test="userId != null"> and userId = #{userId}</if>
+        <if test="workProcess != null"> and workProcess = #{workProcess}</if>
+        <if test="startTime != null and endTime != null">
+          and updateTime between #{startTime} and #{endTime}
+        </if>
+      </where>
+      group by userId, workProcess
+    ) t
+  </select>
+
+  <!--计件统计查询 -->
+  <select id="selectInfoByMap" resultType="cn.kemis.domain.StatisticsDomain">
+    select u.username as 'username', u.realName as 'realName',t.expressNumber as 'expressNumber',
+    CASE t.workProcess
+        WHEN 'cutOrder' THEN '划单' WHEN 'pickingGoods' THEN '捡货'  WHEN 'wrapp' THEN '包装' WHEN 'package' THEN '打包'
+        ELSE ''
+      END as 'workProcess',
+      count(1) as 'count',
+      (select `type` from express where expressNumber=t.expressNumber ) as 'orderType',
+      CASE (select s.`bigPackage` from express e,ship_order s where e.expressNumber=t.expressNumber and e.`expressId`=s.`expressId` limit 1)
+      WHEN 0 THEN '小包'
+      WHEN 1 THEN '大包' ELSE '' END
+      as 'packageType'
+    from
+      ( select userId, workProcess,expressNumber from work_process
+        <where>
+          status = '0'
+          <if test="userId != null"> and userId = #{userId}</if>
+          <if test="workProcess != null"> and workProcess = #{workProcess}</if>
+          <if test="startTime != null and endTime != null">
+             and updateTime between #{startTime} and #{endTime}
+          </if>
+        </where>
+    ) t left join sys_user u on u.sysUserId = t.userId
+    group by t.userId, t.workProcess,orderType,packageType
+    <if test="orderName != null and orderDir != null"> order by ${orderName} ${orderDir} </if>
+    <if test="start != null and limit != null"> limit #{start} , #{limit}</if>
+  </select>
+
+  <!--计件统计查询 selectInfoForSalaryByMap-->
+  <select id="selectInfoForSalaryByMap" resultType="cn.kemis.domain.StatisticsDomain">
+
+    select
+    re.username,re.realName,re.createTime,re.`expressNumber`,
+    CASE re.workProcess
+    WHEN 'cutOrder' THEN '划单' WHEN 'pickingGoods' THEN '捡货'  WHEN 'wrapp' THEN '包装' WHEN 'package' THEN '打包'
+    ELSE '' END as 'workProcess',
+    count(1) as 'count',
+    (select `type` from express where expressNumber=re.expressNumber ) as 'orderType',
+    CASE (select s.`bigPackage` from express e,ship_order s where e.expressNumber=re.expressNumber and e.`expressId`=s.`expressId` limit 1)
+    WHEN 0 THEN '小包'
+    WHEN 1 THEN '大包' ELSE '' END
+    as 'packageType',
+    sum(if(re.workProcess='cutOrder', 1, 0)) as 'cutOrderCount',
+    sum(if(re.workProcess='pickingGoods', 1, 0)) as 'pickingGoodsCount',
+    sum(if(re.workProcess='wrapp', 1, 0)) as 'wrappCount',
+    sum(if(re.workProcess='package', 1, 0)) as 'packageCount',
+    sum(if(re.workProcess='cutOrder', re.soCount, 0)) as 'shipCutOrderCount',
+    sum(if(re.workProcess='pickingGoods', re.soCount, 0)) as 'shipPickingGoodsCount',
+    sum(if(re.workProcess='wrapp', re.soCount, 0)) as 'shipWrappCount',
+    count(1) as 'shipPackageCount'
+    from (
+    select DATE_FORMAT(wp.createTime,'%Y-%m-%d') as 'createTime',su.username,su.realName,wp.`workProcessId`, wp.`userId`,  wp.`expressNumber`, wp.`workProcess`, e.`expressId`,
+    (select count(1) from ship_order so where so.expressId = e.expressId) as soCount
+    from work_process wp join express e on e.expressNumber = wp.expressNumber
+    and wp.status = '0'
+    <if test="userId != null"> and su.userId = #{userId}</if>
+    <if test="workProcess != null"> and wp.workProcess = #{workProcess}</if>
+    <if test="startTime != null and endTime != null">
+      and DATE_FORMAT(wp.createTime,'%Y-%m-%d') between DATE_FORMAT(#{startTime},'%Y-%m-%d') and DATE_FORMAT(#{endTime},'%Y-%m-%d')
+    </if>
+    join sys_user su on su.`sysUserId` = wp.userId
+    group by wp.`workProcess`, wp.`expressNumber`
+    ) re
+    group by re.createTime,re.userId
+    having cutOrderCount > 0
+    or pickingGoodsCount > 0
+    or wrappCount > 0
+    or shipCutOrderCount > 0
+    or shipPickingGoodsCount > 0
+    or shipWrappCount > 0
+    <if test="orderName != null and orderDir != null"> order by ${orderName} ${orderDir} </if>
+    <if test="start != null and limit != null"> limit #{start} , #{limit}</if>
+  </select>
+
+  <select id="countWorkProcessInfoByMap" resultType="java.lang.Integer">
+    select
+    count(w.workProcessId)
+    from work_process w
+    left join express e on e.expressNumber = w.expressNumber
+    left join sys_user u on w.userId = u.sysUserId
+    <where>
+      <if test="realName !=null">
+        and u.realName = #{realName}
+      </if>
+      <if test="expressSchool !=null">
+        and e.expressSchool like  '%${expressSchool}%'
+      </if>
+      <if test="expressNumber !=null">
+        and e.expressNumber = #{expressNumber}
+      </if>
+      <if test="type !=null">
+        and e.`type` = #{type}
+      </if>
+      <if test="delivery !=null">
+        and e.delivery = #{delivery}
+      </if>
+      <if test="workProcess !=null">
+        and w.workProcess = #{workProcess}
+      </if>
+      <if test="startTime != null and endTime != null">
+        and w.createTime between #{startTime} and #{endTime}
+      </if>
+    </where>
+    <if test="start != null and limit != null"> limit #{start} , #{limit}</if>
+
+  </select>
+
+  <!--查询计件详情列表-->
+  <select id="selectWorkProcessInfoByMap" resultType="cn.kemis.domain.StatisticsInfoDomain">
+    select
+    w.workProcessId as workProcessId,
+    CASE w.workProcess
+    WHEN 'cutOrder' THEN '划单'
+    WHEN 'pickingGoods' THEN '捡货'
+    WHEN 'wrapp' THEN '包装'
+    WHEN 'package' THEN '打包'
+    ELSE ''
+    END as workProcess,
+    e.expressAddress as expressAddress,
+    e.expressSchool as expressSchool,
+    e.expressConsignee as expressConsignee,
+    e.expressMobile as expressMobile,
+    e.expressNumber as expressNumber,e.delivery as delivery,
+    e.`type` as `type`,w.userId as userId,u.realName as realName,og.goodsName as goodsName,w.createTime as createTime
+    from work_process w
+    left join express e on e.expressNumber = w.expressNumber
+    left join sys_user u on w.userId = u.sysUserId
+    left join ship_order so on so.expressId = e.expressId
+    left join ship_order_goods og on og.shipOrderId = so.shipOrderId
+    <where>
+      <if test="realName !=null">
+        and u.realName = #{realName}
+      </if>
+      <if test="expressSchool !=null">
+        and e.expressSchool like  '%${expressSchool}%'
+      </if>
+      <if test="expressConsignee !=null">
+        and e.expressConsignee = '${expressConsignee}'
+      </if>
+      <if test="expressMobile !=null">
+        and e.expressMobile = '${expressMobile}'
+      </if>
+      <if test="expressNumber !=null">
+        and e.expressNumber = #{expressNumber}
+      </if>
+      <if test="type !=null">
+        and e.`type` = #{type}
+      </if>
+      <if test="delivery !=null">
+        and e.delivery = #{delivery}
+      </if>
+      <if test="startTime != null and endTime != null">
+        and w.createTime between #{startTime} and #{endTime}
+      </if>
+    </where>
+    <if test="start != null and limit != null"> limit #{start} , #{limit}</if>
+
+  </select>
+
+  <!--根据expressNumber查询工序列表-->
+  <select id="revisionList" resultType="cn.kemis.domain.RevisionListDomain">
+    select
+	  wp.workProcessId,wp.expressNumber,
+	  CASE wp.workProcess
+          WHEN 'cutOrder' THEN '划单'
+          WHEN 'pickingGoods' THEN '捡货'
+          WHEN 'wrapp' THEN '包装'
+          WHEN 'package' THEN '打包'
+        ELSE ''
+      END as workProcess,
+	  wp.status,wp.createTime,
+	  u.realName as 'userName'
+    from  work_process wp left join sys_user u on wp.userId = u.sysUserId
+    <where>
+      <if test="realName !=null">
+        and u.realName = #{realName}
+      </if>
+      <if test="expressNumber !=null">
+        and wp.expressNumber = #{expressNumber}
+      </if>
+      <if test="workProcess !=null">
+        and wp.workProcess = #{workProcess}
+      </if>
+      <if test="startTime != null and endTime != null">
+        and wp.createTime between #{startTime} and #{endTime}
+      </if>
+    </where>
+    <if test="start != null and limit != null"> limit #{start} , #{limit}</if>
+  </select>
+  
+  <select id="countProcessForSalary" resultType="cn.kemis.domain.StatisticsDomain">
+    select u.realName as 'realName',t.expressNumber as 'expressNumber',
+      CASE t.workProcess
+        WHEN 'cutOrder' THEN '划单' WHEN 'pickingGoods' THEN '捡货'  WHEN 'wrapp' THEN '包装' WHEN 'package' THEN '打包'
+        ELSE ''
+      END as 'workProcess',
+      <choose>
+        <when test="workProcess != 'package'">
+          count(t.expressId) as 'count',
+        </when>
+        <otherwise>
+          count(t.expressNumber) as 'count',
+        </otherwise>
+      </choose>
+      (select `type` from express where expressNumber=t.expressNumber ) as 'orderType',
+      CASE (select s.`bigPackage` from express e,ship_order s where e.expressNumber=t.expressNumber and e.`expressId`=s.`expressId` limit 1)
+      WHEN 0 THEN '小包'
+      WHEN 1 THEN '大包' ELSE '' END
+      as 'packageType'
+    from
+      ( select wp.userId, wp.workProcess,wp.expressNumber,e.expressId 
+      	from work_process wp 
+      		inner join express e on wp.expressNumber = e.expressNumber
+            <if test="workProcess != 'package'">
+              inner join ship_order so on e.expressId = so.expressId
+            </if>
+        <where>
+          wp.status = '0'
+          and wp.userId = #{userId}
+          <choose>
+            <when test="workProcess != 'package'">
+              and workProcess != 'package'
+            </when>
+            <otherwise>
+              and workProcess = 'package'
+            </otherwise>
+          </choose>
+          <if test="startTime != null and endTime != null">
+            and wp.createTime between #{startTime} and #{endTime}
+          </if>
+        </where>
+    ) t left join sys_user u on u.sysUserId = t.userId
+    group by t.workProcess,orderType,packageType
+  </select>
+
+  <!--工资统计查询 -->
+  <select id="countSalaryByMap" resultType="java.lang.Integer">
+    select count(1) from
+    (select count(1)
+    from
+    (
+    select
+    wp.userId,wp.createTime
+    from
+    work_process wp join express e on e.expressNumber = wp.expressNumber
+    join sys_user su on su.`sysUserId` = wp.userId
+    <where>
+      wp.status = '0'<if test="realName != null">and su.realName = #{realName}</if>
+      <if test="workProcess != null"> and wp.workProcess = #{workProcess}</if>
+      <if test="startTime != null and endTime != null">
+        and wp.createTime between #{startTime} and #{endTime}
+      </if>
+    </where>
+    group by wp.`workProcess`, wp.`expressNumber`
+    ) re
+    group by DATE_FORMAT(re.createTime,'%Y-%m-%d'),re.userId
+    ) t
+  </select>
+
+  <!--工资统计查询 -->
+  <select id="selectSalaryByMap" resultType="cn.kemis.domain.StatisticSalaryDomain">
+    select
+    re.userId,
+    re.username,
+    re.realName,re.createTime,
+    sum(if(re.workProcess='cutOrder', 1, 0)) as 'cutOrderCount',
+    sum(if(re.workProcess='pickingGoods', 1, 0)) as 'pickingGoodsCount',
+    sum(if(re.workProcess='wrapp', 1, 0)) as 'wrappCount',
+    sum(if(re.workProcess='cutOrder', re.soCount, 0)) as 'shipCutOrderCount',
+    sum(if(re.workProcess='pickingGoods', re.soCount, 0)) as 'shipPickingGoodsCount',
+    sum(if(re.workProcess='wrapp', re.soCount, 0)) as 'shipWrappCount'
+    from
+    (
+      select
+              wp.createTime,su.username,su.realName,wp.`workProcessId`, wp.`userId`, wp.`expressNumber`,
+              wp.`workProcess`, e.`expressId`,
+              (select count(1) from ship_order so where so.expressId = e.expressId) as soCount
+              from
+              work_process wp join express e on e.expressNumber = wp.expressNumber
+                              join sys_user su on su.`sysUserId` = wp.userId
+              <where>
+                wp.status = '0'
+                <if test="username != null"> and su.username = #{username}</if>
+                <if test="realName != null"> and su.realName = #{realName}</if>
+                <if test="workProcess != null"> and wp.workProcess = #{workProcess}</if>
+                <if test="startTime != null and endTime != null">
+                  and wp.createTime between #{startTime} and #{endTime}
+                </if>
+              </where>
+              group by wp.`workProcess`, wp.`expressNumber`
+    ) re
+    group by DATE_FORMAT(re.createTime,'%Y-%m-%d'),re.userId
+    <if test="start != null and limit != null"> limit #{start} , #{limit}</if>
+  </select>
+
+</mapper>

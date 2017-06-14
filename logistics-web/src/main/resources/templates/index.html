@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="common/head :: head"></head>
+    <title>计件平台 - 柯米思</title>
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+  <header th:replace="common/header :: header"></header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside th:replace="common/aside :: aside('')"></aside>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <!-- Main content -->
+    <section class="content">
+      <!-- Small boxes (Stat box) -->
+      <div class="row">
+        <div id="cutOrder" class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3>划单</h3>
+              <p>划单</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-scissors"></i>
+            </div>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div id="pickingGoods" class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3>捡货</h3>
+              <p>捡货</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-ios-cart"></i>
+            </div>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div id="wrapp" class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3>包装</h3>
+              <p>包装</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-cube"></i>
+            </div>
+          </div>
+        </div>
+        <!-- ./col -->
+          <div id="package" class="col-lg-3 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-yellow">
+                  <div class="inner">
+                      <h3>打包</h3>
+                      <p>打包</p>
+                  </div>
+                  <div class="icon">
+                      <i class="ion ion-cube"></i>
+                  </div>
+              </div>
+          </div>
+          <!-- ./col -->
+        <!-- ./col -->
+      </div>
+      <!-- /.row -->
+    </section>
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <input type="text" class="form-control input-lg" name="code" id="code" placeholder="连接扫描枪后点击此处开始扫描"/>
+      </div>
+    </div>
+    <div class="input-group input-group-lg">
+      <input type="text" class="input-lg form-control" name="code-input" id="code-input" placeholder="手动输入快递单号后点击确定"/>
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-info btn-flat" onclick="manualInput();" >确定</button>
+      </span>
+    </div>
+    <div class="row">
+      <div id="msg-area" class="callout callout-success">
+        <h4 id="msg_workProcess" class="color-palette">当前工序 划单</h4>
+        <h4 id="msg_title"></h4>
+        <h4 id="msg_content"></h4>
+      </div>
+    </div>
+    <!-- /.content -->
+
+  </div>
+
+  <!-- /.content-wrapper -->
+  <footer th:replace="common/footer :: footer"></footer>
+
+  <div th:replace="common/control_aside :: control_aside"></div>
+
+</div>
+<!-- ./wrapper -->
+<div th:replace="common/script :: script"></div>
+<!--<div th:replace="common/statistics_script :: script"></div>-->
+<script  th:inline="javascript">
+  /*<![CDATA[*/
+//  window.onload = function() {
+//      document.getElementById("code").focus();
+//  }
+
+  var token = $('#_csrf').attr('content');
+  var header = $('#_csrf_header').attr('content');
+  var workProcess = "cutOrder";
+
+  $(document).keydown(function(event){
+    var key = event.keyCode;
+    if(key == 13) {
+      var code = $("#code").val();
+      scan(code,workProcess);
+    }
+  });
+  $('#cutOrder').click(function(){
+    currentWorkProcess("划单","cutOrder");
+  });$('#pickingGoods').click(function(){
+    currentWorkProcess("拣货","pickingGoods");
+  });
+  $('#package').click(function(){
+    currentWorkProcess("打包","package");
+  });$('#wrapp').click(function(){
+    currentWorkProcess("包装","wrapp");
+  });
+  function currentWorkProcess(msg,code) {
+    if(show_confirm(msg)){
+    $("#msg_workProcess").text("当前工序 " + msg);
+    workProcess = code;
+//    $("#code")[0].focus();
+    }
+
+  }
+  function manualInput(){
+      var code = $("#code-input").val();
+      scan(code, workProcess);
+  }
+  function scan(code,workProcess){
+
+    var postData = {};
+    postData.code = code;
+    postData.workProcess = workProcess;
+    console.log(postData);
+    $.ajax({
+      "url": "/scan/input",
+      "type": "post",
+      "processData": false,
+      "async": true,
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "no-cache"
+      },
+      "data": JSON.stringify(postData),
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader(header, token);
+      },
+      success: function (result) {
+        console.log(result);
+        if(result.code == "1"){
+          $("#msg-area").attr("class","callout callout-success");
+          $("#msg_title").text("已扫描快递单号 : " + code);
+          $("#msg_content").text(result.msg);
+          $("#code").val("");
+          $("#code")[0].focus();
+        }else if(result.code == "-1"){
+          window.location.href = "/login";
+        }else{
+          $("#msg-area").attr("class","callout callout-danger");
+          $("#msg_title").text("已扫描快递单号 : " + code);
+          $("#msg_content").text(result.msg);
+          $("#code").val("");
+          $("#code")[0].focus();
+        }
+      }
+  });
+  }
+
+  function show_confirm(workProcess){
+    return confirm('是否更改工序为 ' + workProcess);
+  }
+  /*]]>*/
+</script>
+</body>
+</html>

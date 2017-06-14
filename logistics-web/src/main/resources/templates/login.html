@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head th:replace="common/head :: head"></head>
+    <title>登录 - 柯米思</title>
+</head>
+<body class="hold-transition login-page" onload="document.login_form.username.focus();">
+<div class="login-box">
+    <div class="login-logo"><b>柯米思EXP管理平台</b></div>
+    <!-- /.login-logo -->
+    <div class="login-box-body">
+        <p class="login-box-msg">
+        <div class="text-center" >
+            <div class="alert alert-danger alert-dismissible" th:if="${param.error}">
+                请重新输入用户名密码.
+            </div>
+            <div class="alert alert-danger alert-dismissible" th:if="${param.logout}">
+                退出成功.
+            </div>
+        </div>
+        <!-- 登录错误提示 -->
+        </p>
+
+        <form name="login_form" th:action="@{/login}" method="post">
+            <div class="form-group has-feedback">
+                <input type="text" class="form-control" placeholder="用户名" name="username"/>
+                <span class="glyphicon glyphicon-pencil form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="password" value="123456" class="form-control" placeholder="Password" name="password"/>
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="row">
+                <div class="col-xs-8">
+                    <div class="checkbox icheck">
+                        <label style="margin-left: 20px;">
+                            <input type="checkbox" name="remember-me" value="true" th:checked="checked"/> 记住用户
+                        </label>
+                    </div>
+                </div>
+                <!-- /.col -->
+                <div class="col-xs-4">
+                    <button type="submit" class="btn btn-primary btn-block btn-flat">登 录</button>
+                </div>
+                <!-- /.col -->
+            </div>
+        </form>
+
+
+
+    </div>
+    <!-- /.login-box-body -->
+    <!--<div th:if="${#httpServletRequest.remoteUser != null}">
+        <p th:text="${#httpServletRequest.remoteUser}">
+            sample_user
+        </p>
+    </div>-->
+    <!-- 用户对象 -->
+</div>
+<!-- /.login-box -->
+
+<script th:replace="common/script :: script" />
+<!-- iCheck -->
+<script th:src="@{/plugins/iCheck/icheck.min.js}" src="../static/plugins/iCheck/icheck.min.js"></script>
+<script>
+    $(function () {
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+    });
+</script>
+</body>
+</html>

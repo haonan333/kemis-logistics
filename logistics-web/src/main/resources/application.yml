@@ -1,0 +1,174 @@
+debug: false
+
+logging:
+  level:
+    org.springframework: INFO
+    org.mybatis: INFO
+    org.springframework.boot.autoconfigure.logging: WARN
+    root: WARN
+    com.jolbox.bonecp: INFO
+    cn.kemis: debug
+
+spring:
+  profiles:
+     active: development
+
+mybatis:
+  mapper-locations: ['classpath*:cn/kemis/mybatis/mapper/*.xml', 'classpath*:cn/kemis/mybatis/manual/*.xml']
+  type-aliases-package: classpath*:cn.kemis.model
+  # executor-type: BATCH 时，在事务中 insert 无法通过 selectKey 取得自增 ID
+  executor-type: REUSE
+  config-location: 'classpath:mybatis-config.xml'
+
+management:
+  security:
+    roles: ROLE_ADMIN
+
+---
+spring:
+  profiles: development
+  datasource:
+    name: test
+    username: root
+    password: 12345678
+    driver-class-name: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/logistics_kemis?allowMultiQueries=true&autoReconnect=true&characterEncoding=utf8&characterSetResults=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    initialize: false
+    type: com.jolbox.bonecp.BoneCPDataSource
+    logStatementsEnabled: true
+    idleMaxAgeInMinutes: 15
+    idleConnectionTestPeriodInMinutes: 5
+    connectionTestStatement: /* ping */ select 1
+    maxConnectionsPerPartition: 10
+    minConnectionsPerPartition: 5
+    partitionCount: 2
+    acquireIncrement: 10
+    statementsCacheSize: 100
+    maxConnectionAgeInSeconds: 3600
+
+  resources:
+      cache-period: 7200
+
+  thymeleaf:
+    cache: false
+
+  groovy:
+    template:
+      cache: false
+
+  devtools:
+    livereload:
+      enabled: true
+
+file:
+  server:
+    url:
+      upload: /Users/liutiyang/project/java/kemis/logistics-system/upload
+      download: /Users/liutiyang/project/java/kemis/logistics-system/download
+      pdfTemplates: /Users/liutiyang/project/java/kemis/logistics-system/logistics-web/templates/
+
+server:
+  port: 8080
+
+---
+###
+# java -jar -Dspring.profiles.active=production logistics-web-0.0.1-package.jar
+###
+spring:
+  profiles: production
+  datasource:
+    name: test
+    username: root
+#    password: abcABC123!@#
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/logistics_kemis?allowMultiQueries=true&autoReconnect=true&characterEncoding=utf8&characterSetResults=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    initialize: false
+    type: com.jolbox.bonecp.BoneCPDataSource
+    logStatementsEnabled: false
+    idleMaxAgeInMinutes: 15
+    idleConnectionTestPeriodInMinutes: 5
+    connectionTestStatement: /* ping */ select 1
+    maxConnectionsPerPartition: 50
+    minConnectionsPerPartition: 10
+    partitionCount: 2
+    acquireIncrement: 10
+    statementsCacheSize: 100
+    maxConnectionAgeInSeconds: 3600
+
+  resources:
+      cache-period: 7200
+
+  thymeleaf:
+    cache: true
+
+  groovy:
+    template:
+      cache: true
+
+logging:
+  path: logs/
+  file: kemis.log
+
+file:
+  server:
+    url:
+      upload: /u01/kms/file/upload
+      download: /u01/kms/file/download
+      pdfTemplates: /u01/kms/file/pdfTemplates/
+
+server:
+  port: 8080
+  session:
+    timeout: 28800
+
+---
+###
+# java -jar -Dspring.profiles.active=production logistics-web-0.0.1-package.jar
+###
+spring:
+  profiles: test
+  datasource:
+    name: test
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/logistics_kemis_20170222?allowMultiQueries=true&autoReconnect=true&characterEncoding=utf8&characterSetResults=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    initialize: false
+    type: com.jolbox.bonecp.BoneCPDataSource
+    logStatementsEnabled: false
+    idleMaxAgeInMinutes: 15
+    idleConnectionTestPeriodInMinutes: 5
+    connectionTestStatement: /* ping */ select 1
+    maxConnectionsPerPartition: 50
+    minConnectionsPerPartition: 10
+    partitionCount: 2
+    acquireIncrement: 10
+    statementsCacheSize: 100
+    maxConnectionAgeInSeconds: 3600
+
+  resources:
+      cache-period: 7200
+
+  thymeleaf:
+    cache: true
+
+  groovy:
+    template:
+      cache: true
+
+logging:
+  path: logs/
+  file: kemis.log
+
+file:
+  server:
+    url:
+      upload: /u01/kms_test/file/upload
+      download: /u01/kms_test/file/download
+      pdfTemplates: /u01/kms_test/file/pdfTemplates/
+
+server:
+  port: 8088
+  session:
+    timeout: 28800

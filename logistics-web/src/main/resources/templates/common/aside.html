@@ -1,0 +1,130 @@
+<aside class="main-sidebar" xmlns:th="http://www.thymeleaf.org" th:fragment="aside(activeElement)" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+        <!-- Sidebar user panel -->
+        <div class="user-panel">
+            <div class="pull-left image">
+                <img id="largeAvatar" th:src="@{/dist/img/user2-160x160.jpg}" src="../../static/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image"/>
+            </div>
+            <div class="pull-left info">
+                <p sec:authentication="name">Jeffer Lau</p>
+                <a href="#"><i class="fa fa-circle text-success"></i> 在线</a>
+            </div>
+        </div>
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu">
+            <li class="header">主导航</li>
+            <li class="active treeview"
+                th:class="(${activeElement} == 'shipOrderImport' or ${activeElement} == 'shipOrderList' or ${activeElement} == 'importVerifyTeacher' or ${activeElement} == 'importExpressNo' or ${activeElement} == 'importExpressPrice' or ${activeElement} == 'shipOrderDispatched' or ${activeElement} == 'importExpressConsignee' or ${activeElement} == 'exportExpress' or ${activeElement} == 'exportExpress' or ${activeElement} == 'deliveryChange') ? 'active treeview' : 'treeview'"
+                sec:authorize="hasAuthority('/admin/shipOrder')">
+                <a href="#">
+                    <i class="fa fa-laptop"></i> <span>订单导入/导出</span>
+                    <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                </a>
+                <ul class="treeview-menu">
+                    <li th:class="(${activeElement} == 'shipOrderImport') ? 'active' : ''" sec:authorize="hasAuthority('/admin/shipOrder/import')">
+                        <a th:href="@{/admin/shipOrder/import}" href="../admin/shipOrder/import.html"><i class="fa fa-sign-in"></i>导入发货单</a></li>
+                    <li th:class="(${activeElement} == 'importExpressConsignee') ? 'active' : ''" sec:authorize="hasAuthority('/admin/shipOrder/importExpressConsignee')">
+                        <a th:href="@{/admin/shipOrder/importExpressConsignee}" href="../admin/shipOrder/importExpressConsignee.html"><i class="fa fa-sign-in"></i>导入快递收货人</a></li>
+                    <li th:class="(${activeElement} == 'shipOrderList') ? 'active' : ''" sec:authorize="hasAuthority('/admin/shipOrder/list')">
+                        <a th:href="@{/admin/shipOrder/list}" href="../admin/shipOrder/list.html"><i class="fa fa-list-alt"></i>发货单列表</a></li>
+                    <!--<li sec:authorize="hasAuthority('/admin/shipOrder/verifyTeacher')">
+                        <a th:href="@{/admin/shipOrder/verifyTeacher}" href="#"><i class="fa fa-circle-o"></i>导出老师校验单</a></li>
+                    <li th:class="(${activeElement} == 'importVerifyTeacher') ? 'active' : ''" sec:authorize="hasAuthority('/admin/shipOrder/importVerifyTeacher')">
+                        <a th:href="@{/admin/shipOrder/importVerifyTeacher}" href="#"><i class="fa fa-circle-o"></i>导入老师校验单</a></li>-->
+                    <li th:class="(${activeElement} == 'importExpressNo') ? 'active' : ''" sec:authorize="hasAuthority('/admin/shipOrder/importExpressNo')">
+                        <a th:href="@{/admin/shipOrder/importExpressNo}" href="#"><i class="fa fa-sign-in"></i>导入快递单号</a></li>
+                    <li th:class="(${activeElement} == 'importExpressPrice') ? 'active' : ''" sec:authorize="hasAuthority('/admin/shipOrder/importExpressPrice')">
+                        <a th:href="@{/admin/shipOrder/importExpressPrice}" href="#"><i class="fa fa-sign-in"></i>导入快递价格</a></li>
+                    <li th:class="(${activeElement} == 'shipOrderDispatched') ? 'active' : ''" sec:authorize="hasAuthority('/admin/shipOrder/dispatched')">
+                        <a th:href="@{/admin/shipOrder/dispatched}" href="#"><i class="fa fa-sign-out"></i>导出发货结果单</a></li>
+                    <li th:class="(${activeElement} == 'exportExpress') ? 'active' : ''" sec:authorize="hasAuthority('/admin/export/exportExpress')">
+                        <a th:href="@{/admin/export/exportExpress}" href="#"><i class="fa fa-download"></i>下载快递单/清单</a></li>
+                </ul>
+            </li>
+            <li class="treeview" th:class="(${activeElement} == 'statisticsPiecework' or ${activeElement} == 'statisticsInfo' or ${activeElement} == 'statisticsSalary') ? 'active treeview' : 'treeview'" sec:authorize="hasAuthority('/admin/statistics')">
+                <a href="#">
+                    <i class="fa fa-pie-chart"></i>
+                    <span>统计</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu" sec:authorize="hasAuthority('/admin/statistics')">
+                    <li th:class="(${activeElement} == 'statisticsPiecework') ? 'active' : ''" ><a th:href="@{/admin/statistics/piecework}" href="../admin/statistics/piecework.html"><i class="fa fa-circle-o"></i>计件统计</a></li>
+                    <li th:class="(${activeElement} == 'statisticsInfo') ? 'active' : ''" ><a th:href="@{/admin/statistics/info}" href="../admin/statistics/info.html"><i class="fa fa-circle-o"></i>计件详情</a></li>
+                    <!--<li th:class="(${activeElement} == 'statisticsSalary') ? 'active' : ''" ><a th:href="@{/admin/statistics/salary}" href="../admin/statistics/salary.html"><i class="fa fa-circle-o"></i>工资统计</a></li>-->
+                    <li th:class="(${activeElement} == 'statisticsUnPackage') ? 'active' : ''" sec:authorize="hasAuthority('/admin/statistics/pieceworkUnPackage')"><a th:href="@{/admin/statistics/pieceworkUnPackage}" href="../admin/statistics/pieceworkUnPackage.html"><i class="fa fa-circle-o"></i>未打包数据统计</a></li>
+                </ul>
+            </li>
+            <li class="treeview"
+                th:class="(${activeElement} == 'scanExceptionInputNumber' or ${activeElement} == 'scanExceptionRevision') ? 'active treeview' : 'treeview'"
+                sec:authorize="hasAuthority('/admin/scanException')">
+                <a href="#">
+                    <i class="fa fa-edit"></i> <span>扫描异常处理</span>
+                    <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li th:class="(${activeElement} == 'scanExceptionInputNumber') ? 'active' : ''" sec:authorize="hasAuthority('/admin/scanException/inputNumber')"><a th:href="@{/admin/scanException/inputNumber}" href="../admin/scanException/inputNumber.html"><i class="fa fa-circle-o"></i>录入单号</a></li>
+                    <li th:class="(${activeElement} == 'scanExceptionRevision') ? 'active' : ''" sec:authorize="hasAuthority('/admin/scanException/revision')"><a th:href="@{/admin/scanException/revision}" href="../admin/scanException/revision.html"><i class="fa fa-circle-o"></i>修正工序</a></li>
+                </ul>
+            </li>
+
+            <li class="treeview"
+                th:class="(${activeElement} == 'userManager' or ${activeElement} == 'roleManager' or ${activeElement} == 'moduleManager' or ${activeElement} == 'keywordManager' or ${activeElement} == 'configTable') ? 'active treeview' : 'treeview'"
+                sec:authorize="hasAuthority('/admin/systemConfig')">
+                <a href="#">
+                    <i class="fa fa-gears"></i> <span>系统管理</span>
+                    <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li th:class="(${activeElement} == 'userManager') ? 'active' : ''" sec:authorize="hasAuthority('/admin/systemConfig/userManager')"><a th:href="@{/admin/systemConfig/userManager}" href="../admin/systemConfig/userManager.html"><i class="fa fa-users"></i>用户管理</a></li>
+                    <li th:class="(${activeElement} == 'roleManager') ? 'active' : ''" sec:authorize="hasAuthority('/admin/systemConfig/roleManager')"><a th:href="@{/admin/systemConfig/roleManager}" href="../admin/systemConfig/roleManager.html"><i class="fa fa-tags"></i>角色管理</a></li>
+                    <li th:class="(${activeElement} == 'moduleManager') ? 'active' : ''" sec:authorize="hasAuthority('/admin/systemConfig/moduleManager')"><a th:href="@{/admin/systemConfig/moduleManager}" href="../admin/systemConfig/moduleManager.html"><i class="fa fa-puzzle-piece"></i>模块管理</a></li>
+                    <li th:class="(${activeElement} == 'keywordManager') ? 'active' : ''" sec:authorize="hasAuthority('/admin/systemConfig/keywordManager')"><a th:href="@{/admin/systemConfig/keywordManager}" href="../admin/systemConfig/keywordManager.html"><i class="fa fa-fonticons"></i>关键字维护</a></li>
+                    <li th:class="(${activeElement} == 'configTable') ? 'active' : ''" sec:authorize="hasAuthority('/admin/systemConfig/configTable')"><a th:href="@{/admin/systemConfig/configTable}" href="../admin/systemConfig/configTable.html"><i class="fa fa-gear"></i>配置表维护</a></li>
+                </ul>
+            </li>
+            <!-- piece work for worker -->
+            <li sec:authorize="hasAuthority('/piecework')"><a href="/"><i class="fa fa-scissors"></i> <span>划单</span></a></li>
+            <!--<li sec:authorize="hasAuthority('/piecework')"><a href="/"><i class="fa fa-shopping-cart"></i> <span>捡货</span></a></li>
+            <li sec:authorize="hasAuthority('/piecework')"><a href="/"><i class="fa fa-cube"></i> <span>打包</span></a></li>-->
+            <li sec:authorize="hasAuthority('/user/statistics/piecework')"><a th:href="@{/user/statistics/piecework}" href="../user/statistics/piecework.html"><i class="fa fa-circle-o"></i>计件统计</a></li>
+            <!-- /piece work for worker -->
+            <li class="treeview"
+                th:class="(${activeElement} == 'userProfile') ? 'active treeview' : 'treeview'"
+                sec:authorize="hasAuthority('/userProfile')">
+                <a href="#">
+                    <i class="fa fa-user"></i> <span>个人信息</span>
+                    <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li th:class="(${activeElement} == 'userProfileAvatar') ? 'active' : ''" sec:authorize="hasAuthority('/userProfile/avatar')"><a th:href="@{/userProfile/avatar}" href="../userProfile/avatar.html"><i class="fa fa-users"></i>修改头像</a></li>
+                    <li th:class="(${activeElement} == 'userProfileEdit') ? 'active' : ''" sec:authorize="hasAuthority('/userProfile/edit')"><a th:href="@{/userProfile/edit}" href="../userProfile/edit.html"><i class="fa fa-users"></i>修改个人资料</a></li>
+                    <li th:class="(${activeElement} == 'userProfilePassword') ? 'active' : ''" sec:authorize="hasAuthority('/userProfile/password')"><a th:href="@{/userProfile/password}" href="../userProfile/password.html"><i class="fa fa-tags"></i>修改登录密码</a></li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+    <!-- /.sidebar -->
+    <script type="text/javascript">
+      function loadAvatar() {
+        $.get("/userProfile/avatarImage?size=l", function (result) {
+          if (result) {
+            $("#largeAvatar").attr("src", result);
+            $("#largeAvatarRight").attr("src", result);
+            $("#smallAvatarRight").attr("src", result);
+          }
+        })
+      }
+      $(function () {
+        loadAvatar();
+      });
+    </script>
+</aside>

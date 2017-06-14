@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kemis.dao.mapper.ShipOrderMapper">
+
+    <resultMap id="PDFResultMap" type="cn.kemis.domain.ShipOrderAndGoodsDomain">
+        <constructor>
+            <idArg column="shipOrderId" javaType="java.lang.Long" jdbcType="BIGINT" />
+            <arg column="batchNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="userId" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="province" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="city" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="district" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="school" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="theClass" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="consignee" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="mobile" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="delivery" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="totalCount" javaType="java.lang.Short" jdbcType="SMALLINT" />
+            <arg column="unitCredits" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="subject" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="campusAmbassador" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="expressId" javaType="java.lang.Long" jdbcType="BIGINT" />
+            <arg column="printExpress" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="outExpress" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="outVerify" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="teacherTag" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="bigPackage" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="status" javaType="java.lang.Byte" jdbcType="TINYINT" />
+            <arg column="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+            <arg column="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        </constructor>
+        <association property="express" column="expressId" javaType="cn.kemis.model.Express">
+            <id column="expressId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <result property="expressCompany" column="expressCompany" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressNumber" column="expressNumber" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="type" column="type" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="delivery" column="delivery" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="exportTag" column="exportTag" javaType="java.lang.Boolean" jdbcType="BIT"/>
+            <result property="price" column="price" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <result property="weight" column="weight" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressConsignee" column="expressConsignee" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressMobile" column="expressMobile" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressSchool" column="expressSchool" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressProvince" column="expressProvince" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressCity" column="expressCity" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressDistrict" column="expressDistrict" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressAddress" column="expressAddress" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="status" column="expressStatus" javaType="java.lang.Byte" jdbcType="TINYINT" />
+            <result property="createTime" column="expressCreateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+            <result property="updateTime" column="expressUupdateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        </association>
+        <collection property="shipOrderGoodsList" ofType="cn.kemis.model.ShipOrderGoods" column="shipOrderId" javaType="ArrayList">
+            <id property="shipOrderGoodsId" column="shipOrderGoodsId" javaType="Long" jdbcType="BIGINT"/>
+            <result property="goodsName" column="goodsName" javaType="string" jdbcType="VARCHAR"/>
+            <result property="goodsCount" column="goodsCount" javaType="short" jdbcType="SMALLINT"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="DeliveryResultMap" type="cn.kemis.domain.ShipOrderAndGoodsDomain">
+        <constructor>
+            <idArg column="shipOrderId" javaType="java.lang.Long" jdbcType="BIGINT" />
+            <arg column="batchNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="userId" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="province" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="city" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="district" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="school" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="theClass" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="consignee" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="mobile" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="delivery" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="totalCount" javaType="java.lang.Short" jdbcType="SMALLINT" />
+            <arg column="unitCredits" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="subject" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="campusAmbassador" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="expressId" javaType="java.lang.Long" jdbcType="BIGINT" />
+            <arg column="printExpress" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="outExpress" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="outVerify" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="teacherTag" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="bigPackage" javaType="java.lang.Boolean" jdbcType="BIT" />
+            <arg column="status" javaType="java.lang.Byte" jdbcType="TINYINT" />
+            <arg column="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+            <arg column="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        </constructor>
+        <association property="express" column="expressId" javaType="cn.kemis.model.Express">
+            <id column="expressId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+            <result property="expressCompany" column="expressCompany" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressNumber" column="expressNumber" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="type" column="type" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="delivery" column="delivery" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="exportTag" column="exportTag" javaType="java.lang.Boolean" jdbcType="BIT"/>
+            <result property="price" column="price" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <result property="weight" column="weight" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressConsignee" column="expressConsignee" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressMobile" column="expressMobile" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressSchool" column="expressSchool" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressProvince" column="expressProvince" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressCity" column="expressCity" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressDistrict" column="expressDistrict" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="expressAddress" column="expressAddress" javaType="java.lang.String" jdbcType="VARCHAR"/>
+            <result property="status" column="expressStatus" javaType="java.lang.Byte" jdbcType="TINYINT" />
+            <result property="createTime" column="expressCreateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+            <result property="updateTime" column="expressUupdateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        </association>
+    </resultMap>
+
+
+
+    <sql id="join_Column_List">
+        so.shipOrderId, so.batchNo, so.userId, so.userName, so.province, so.city, so.district, so.school, so.theClass,
+        so.consignee, so.mobile, so.delivery, so.address, so.totalCount, so.unitCredits, so.subject, so.campusAmbassador,
+        so.expressId, so.printExpress, so.outExpress, so.outVerify, so.teacherTag, so.bigPackage, so.`status`,
+        so.createTime, so.updateTime
+    </sql>
+
+    <sql id="Express_Column_List">
+        e.expressId, e.expressCompany, e.expressNumber, e.`type`, e.delivery, e.exportTag, e.price, e.weight,
+        e.expressConsignee, e.expressMobile, e.expressSchool, e.expressProvince, e.expressCity, e.expressDistrict,
+        e.expressAddress, e.`status` as expressStatus, e.createTime as expressCreateTime, e.updateTime as expressUpdateTime
+    </sql>
+
+    <sql id="Goods_Column_List">
+        sog.shipOrderGoodsId, sog.shipOrderId, sog.goodsName, sog.goodsCount
+    </sql>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        SELECT count(*) FROM ship_order
+        <where>
+            <if test="province != null"> and province = #{province}</if>
+            <if test="city != null"> and city = #{city}</if>
+            <if test="district != null"> and district = #{district}</if>
+            <if test="school != null"> and school = #{school}</if>
+            <if test="consignee != null"> and consignee = #{consignee}</if>
+            <if test="expressNumber != null"> and expressNumber = #{expressNumber}</if>
+            <if test="mobile != null"> and mobile = #{mobile}</if>
+            <if test="delivery != null"> and delivery = #{delivery}</if>
+            <if test="theClass != null"> and theClass = #{theClass}</if>
+            <if test="unitCredits != null">
+                <if test="unitCredits == '学生豆'">
+                    and unitCredits = '学生豆'
+                </if>
+                <if test="unitCredits != '学生豆'">
+                    and unitCredits != '学生豆'
+                </if>
+            </if>
+            <if test="userName != null"> and userName = #{userName}</if>
+            <if test="startTime != null and endTime != null">
+                and createTime between #{startTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByMap" resultType="cn.kemis.domain.ShipOrderDomain">
+        SELECT <include refid="Base_Column_List"/>,
+          (select group_concat(concat(goodsName,' X',goodsCount)) from ship_order_goods
+            where shipOrderId = so.shipOrderId) as goodsName
+        FROM ship_order so
+        <where>
+            <if test="province != null"> and so.province = #{province}</if>
+            <if test="city != null"> and so.city = #{city}</if>
+            <if test="district != null"> and so.district = #{district}</if>
+            <if test="school != null"> and so.school = #{school}</if>
+            <if test="consignee != null"> and so.consignee = #{consignee}</if>
+            <if test="expressNumber != null"> and so.expressNumber = #{expressNumber}</if>
+            <if test="mobile != null"> and so.mobile = #{mobile}</if>
+            <if test="delivery != null"> and so.delivery = #{delivery}</if>
+            <if test="theClass != null"> and so.theClass = #{theClass}</if>
+            <if test="unitCredits != null">
+                <if test="unitCredits == '学生豆'">
+                    and so.unitCredits = '学生豆'
+                </if>
+                <if test="unitCredits != '学生豆'">
+                    and so.unitCredits != '学生豆'
+                </if>
+            </if>
+            <if test="userName != null"> and so.userName = #{userName}</if>
+            <if test="startTime != null and endTime != null">
+                and so.createTime between #{startTime} and #{endTime}
+            </if>
+        </where>
+        <if test="orderName != null and orderDir != null"> order by ${orderName} ${orderDir} </if>
+        <if test="start != null and limit != null"> limit #{start},#{limit}</if>
+    </select>
+
+    <!--<select id="selectShipOrderByExample" parameterType="cn.kemis.model.ShipOrderExample" resultMap="PDFResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List" />
+        from ship_order
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>-->
+
+    <select id="selectPorvinceListByBatchNo" resultType="String">
+        select province
+        from ship_order
+        <where>
+            <if test="batchNo != null"> and batchNo = #{batchNo,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <select id="selectPorvinceListByMap" resultType="String">
+        select
+        province
+        from ship_order
+        where
+            teacherTag = b'0' and `status` = 1
+        <where>
+            <if test="province != null"> and province = #{province}</if>
+            <if test="city != null"> and city = #{city}</if>
+            <if test="district != null"> and district = #{district}</if>
+            <if test="school != null"> and school = #{school}</if>
+            <if test="consignee != null"> and consignee = #{consignee}</if>
+            <if test="batchNo != null"> and batchNo = #{batchNo,jdbcType=VARCHAR}</if>
+        </where>
+        group by province
+    </select>
+
+    <select id="selectDeliveryByShipOrder" parameterType="cn.kemis.model.ShipOrder" resultMap="DeliveryResultMap">
+        select
+        <include refid="join_Column_List" />,
+        <include refid="Express_Column_List" />
+        from ship_order so JOIN express e ON so.expressId = e.expressId
+        <where>
+            so.batchNo = #{batchNo} and so.teacherTag = #{teacherTag}
+            and so.`status` = #{status} and so.printExpress = #{printExpress}
+            <if test="delivery != null and delivery != ''">
+                and so.delivery = #{delivery}
+            </if>
+            <if test="province != null and province != ''">
+                and so.province = #{province}
+            </if>
+            <if test="school != null and school != ''">
+                and so.school = #{school}
+            </if>
+            <if test="bigPackage != null">
+                and so.bigPackage = #{bigPackage}
+            </if>
+        </where>
+        group by so.expressId
+        order by CONVERT( so.province USING gbk ), CONVERT( so.city USING gbk )
+        , CONVERT( so.district USING gbk ), CONVERT( so.school USING gbk ),
+        CONVERT( so.consignee USING gbk ), CONVERT( theClass USING gbk )
+    </select>
+    <select id="selectDeliveryByRecord" parameterType="cn.kemis.model.ShipOrder" resultMap="PDFResultMap">
+        select
+        <include refid="join_Column_List" />,
+        <include refid="Express_Column_List" />,
+        <include refid="Goods_Column_List" />
+        from ship_order so JOIN express e ON so.expressId = e.expressId LEFT JOIN ship_order_goods sog ON sog.shipOrderId = so.shipOrderId
+        <where>
+            so.batchNo = #{batchNo} and so.teacherTag = #{teacherTag}
+            and so.`status` = #{status}
+            <if test="printExpress != null">
+                and so.printExpress = #{printExpress}
+            </if>
+            <if test="delivery != null and delivery != ''">
+                and so.delivery = #{delivery}
+            </if>
+            <if test="province != null and province != ''">
+                and so.province = #{province}
+            </if>
+            <if test="school != null and school != ''">
+                and so.school = #{school}
+            </if>
+            <if test="bigPackage != null">
+                and so.bigPackage = #{bigPackage}
+            </if>
+            <if test="expressId != null and expressId != ''">
+                and so.expressId = #{expressId}
+            </if>
+        </where>
+        GROUP BY so.expressId, sog.shipOrderGoodsId
+        order by CONVERT( so.province USING gbk ), CONVERT( so.city USING gbk ),
+        CONVERT( so.district USING gbk ), CONVERT( so.school USING gbk ),
+        CONVERT( so.consignee USING gbk ), CONVERT( theClass USING gbk )
+    </select>
+</mapper>

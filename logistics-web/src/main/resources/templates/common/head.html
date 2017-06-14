@@ -1,0 +1,53 @@
+<head xmlns:th="http://www.thymeleaf.org"
+      th:fragment="head" th:remove="tag">
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"
+          href="../../static/bootstrap/css/bootstrap.min.css"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" th:href="@{/libs/font-awesome-4.6.3/css/font-awesome.min.css}"
+          href="../../static/libs/font-awesome-4.6.3/css/font-awesome.min.css"/>
+    <!-- Ionicons -->
+    <link rel="stylesheet" th:href="@{/libs/ionicons-2.0.1/css/ionicons.min.css}"
+          href="../../static/libs/ionicons-2.0.1/css/ionicons.min.css"/>
+
+    <!-- Select2 -->
+    <link rel="stylesheet" th:href="@{/plugins/select2/select2.min.css}" href="../../static/plugins/select2/select2.min.css"/>
+
+    <!-- Theme style -->
+    <link rel="stylesheet" th:href="@{/dist/css/AdminLTE.min.css}" href="../../static/dist/css/AdminLTE.min.css"/>
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" th:href="@{/dist/css/skins/_all-skins.min.css}"
+          href="../../static/dist/css/skins/_all-skins.min.css"/>
+    <!-- iCheck -->
+    <link rel="stylesheet" th:href="@{/plugins/iCheck/flat/blue.css}" href="../../static/plugins/iCheck/flat/blue.css"/>
+    <!-- Morris chart -->
+    <link rel="stylesheet" th:href="@{/plugins/morris/morris.css}" href="../../static/plugins/morris/morris.css"/>
+    <!-- jvectormap -->
+    <link rel="stylesheet" th:href="@{/plugins/jvectormap/jquery-jvectormap-1.2.2.css}"
+          href="../../static/plugins/jvectormap/jquery-jvectormap-1.2.2.css"/>
+    <!-- Date Picker -->
+    <link rel="stylesheet" th:href="@{/plugins/datepicker/datepicker3.css}"
+          href="../../static/plugins/datepicker/datepicker3.css"/>
+    <!-- Daterange picker -->
+    <link rel="stylesheet" th:href="@{/plugins/daterangepicker/daterangepicker.css}"
+          href="../../static/plugins/daterangepicker/daterangepicker.css"/>
+    <!-- bootstrap wysihtml5 - text editor -->
+    <link rel="stylesheet" th:href="@{/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css}"
+          href="../../static/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css"/>
+
+    <!-- jQuery 2.2.3 -->
+    <script th:src="@{/plugins/jQuery/jquery-2.2.3.min.js}" src="../../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script th:src="@{/libs/html5shiv-3.7.3/html5shiv.min.js}"
+            src="../../static/libs/html5shiv-3.7.3/html5shiv.min.js"></script>
+    <script th:src="@{/libs/respond-1.4.2/respond.min.js}" src="../../static/libs/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <head th:replace="common/head :: head"></head>
+    <!-- spring csrf ajax 请求必传-->
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <!-- DataTables -->
+    <link rel="stylesheet" th:href="@{/plugins/datatables/dataTables.bootstrap.css}" href="../../../static/plugins/datatables/dataTables.bootstrap.css"/>
+    <title>未打包数据统计 - 管理平台 - 柯米思</title>
+    <style>
+        div.margin-top-10 {margin-top: 10px}
+    </style>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <header th:replace="common/header :: header"></header>
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside th:replace="common/aside :: aside('statisticsUnPackage')"></aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+          未打包数据统计
+        <small>控制面板</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i>主页</a></li>
+        <li class="active">统计</li>
+      </ol>
+    </section>
+
+      <!-- Main content -->
+      <section class="content">
+          <!-- Small boxes (Stat box) -->
+          <div class="row">
+              <!-- search box -->
+              <div class="col-xs-12">
+                  <div class="box box-primary">
+                      <div class="box-body">
+                          <div class="row">
+                              <div class="col-xs-2">
+                                  <input type="text" name="expressId" class="form-control" id="expressId" placeholder="快递单ID"/>
+                              </div>
+                              <div class="col-xs-2">
+                                  <input type="text" name="batchNo" class="form-control" id="batchNo" placeholder="批次号"/>
+                              </div>
+                              <div class="col-xs-2">
+                                  <input type="text" name="expressNumber" class="form-control" id="expressNumber" placeholder="物流单号"/>
+                              </div>
+                              <div class="col-xs-2">
+                                  <input type="text" name="expressConsignee" class="form-control" id="expressConsignee" placeholder="收货人"/>
+                              </div>
+                              <div class="col-xs-2">
+                                  <input type="text" name="expressMobile" class="form-control" id="expressMobile" placeholder="收货人电话"/>
+                              </div>
+                          </div>
+                          <div class="row margin-top-10">
+                              <div class="col-xs-2">
+                                  <input type="text" name="expressProvince" class="form-control" id="expressProvince" placeholder="省"/>
+                              </div>
+                              <div class="col-xs-2">
+                                  <input type="text" name="expressCity" class="form-control" id="expressCity" placeholder="市"/>
+                              </div>
+                              <div class="col-xs-2">
+                                  <input type="text" name="expressDistrict" class="form-control" id="expressDistrict" placeholder="区"/>
+                              </div>
+                              <div class="col-xs-5">
+                                  <div class="form-group">
+                                      <div class="input-group">
+                                          <div class="input-group-addon">
+                                              <i class="fa fa-calendar"></i>
+                                          </div>
+                                          <input type="text" name="querydate" class="form-control pull-right" id="reservation"/>
+                                      </div>
+                                  </div>
+                              </div>
+
+                              <div class="col-xs-1">
+                                  <button id="statistics-search" class="btn btn-info pull-right">搜索</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <!-- /search box -->
+          </div>
+          <!-- /.row -->
+          <!-- Main row -->
+          <div class="row">
+              <div class="col-xs-12">
+                  <div class="box box-primary">
+                      <div class="box-header">
+                          <h3 class="box-title">列表</h3>
+                      </div>
+                      <div class="box-body" id="div-table-container">
+                          <table id="table-statistics" cellspacing="0" class="table table-bordered table-hover display nowrap" width="100%">
+                          </table>
+                      </div>
+                      <!-- /.box-body -->
+                  </div>
+                  <!-- /.box -->
+              </div>
+              <!-- /.col -->
+          </div>
+          <!-- /.row (main row) -->
+      </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer th:replace="common/footer :: footer"></footer>
+
+  <div th:replace="common/control_aside :: control_aside"></div>
+</div>
+<!-- ./wrapper -->
+
+<div th:replace="common/script :: script"></div>
+<div th:replace="common/table_script :: table_script"></div>
+
+<!--<div th:replace="common/statistics_script :: script"></div>-->
+<script>
+    /*<![CDATA[*/
+    $(function () {
+        //时间搜索框初始化,间隔一个月
+        $('#reservation').daterangepicker();
+
+        var $wrapper = $('#div-table-container');
+        var $table = $('#table-statistics');
+        var _table = $table.DataTable($.extend(true, {}, CONSTANT.DATA_TABLES.DEFAULT_OPTION, {
+            bSort: false,
+            ajax: function (data, callback, settings) {//ajax配置为function,手动调用异步查询
+                //手动控制遮罩
+                $wrapper.spinModal();
+                //封装请求参数
+                var param = getQueryCondition(data);
+                $.ajax({
+                    type: "GET",
+                    url: "/admin/statistics/statisticsUnPackage",
+                    cache: false,  //禁用缓存
+                    data: param,    //传入已封装的参数
+                    dataType: "json",
+                    success: function (result) {
+                        var data = result.data;
+//                        console.log(data);
+                        setTimeout(function () {
+                            //关闭遮罩
+                            $wrapper.spinModal(false);
+                            if (data.code != 0 ) {
+                                alert("查询失败。错误：" + data.msg);
+                                return;
+                            }
+                            //封装返回数据
+                            var returnData = {};
+                            returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+                            returnData.recordsTotal = data.total;//返回数据全部记录
+                            returnData.recordsFiltered = data.total;//后台不实现过滤功能，每次查询均视作全部结果
+                            returnData.data = data.data;//返回的数据列表
+//                            console.log(returnData.data);
+                            //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+                            //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+                            callback(returnData);
+                        },200);
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        $wrapper.spinModal(false);
+                        alert("查询失败");
+                    }
+                });
+            },
+            "columns": [
+                { "data": "expressId", "title":"快递单ID","defaultContent":""},
+                { "data": "batchNo", "title":"批次号","defaultContent":""},
+                { "data": "expressCompany", "title":"物流公司","defaultContent":""},
+                { "data": "expressNumber", "title":"物流单号","defaultContent":""},
+                { "data": "type", "title":"类型","defaultContent":""},
+                { "data": "delivery", "title":"配送方式","defaultContent":""},
+                { "data": "expressConsignee", "title":"收货人","defaultContent":""},
+                { "data": "expressMobile", "title":"收货人电话","defaultContent":""},
+                { "data": "expressSchoolId", "title":"学校 ID","defaultContent":""},
+                { "data": "expressSchool", "title":"学校名称","defaultContent":""},
+                { "data": "expressProvince", "title":"省","defaultContent":""},
+                { "data": "expressCity", "title":"市","defaultContent":""},
+                { "data": "expressDistrict", "title":"区","defaultContent":""},
+                { "data": "expressAddress", "title":"详细地址","defaultContent":""},
+                { "data": "remark", "title":"备注","defaultContent":""}
+            ]
+        }));
+
+        //搜索
+        $("#statistics-search").click(function () {
+            _table.draw();
+        });
+    });
+
+    function getQueryCondition(data) {
+        var param = {};
+
+        param.expressId = $("input[name='expressId']").val();
+        param.batchNo = $("input[name='batchNo']").val();
+        param.expressNumber = $("input[name='expressNumber']").val();
+        param.expressConsignee = $("input[name='expressConsignee']").val();
+        param.expressMobile = $("input[name='expressMobile']").val();
+        param.expressProvince = $("input[name='expressProvince']").val();
+        param.expressCity = $("input[name='expressCity']").val();
+        param.expressDistrict = $("input[name='expressDistrict']").val();
+
+        param.querydate = $("input[name='querydate']").val();
+
+        //组装分页参数
+        param.start = data.start;
+        param.limit = data.length;
+        param.draw = data.draw;
+
+        return param;
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

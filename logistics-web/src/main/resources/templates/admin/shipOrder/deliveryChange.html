@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <head th:replace="common/head :: head"></head>
+    <!-- spring csrf ajax 请求必传-->
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <!-- DataTables -->
+    <link rel="stylesheet" th:href="@{/plugins/datatables/dataTables.bootstrap.css}" href="../../../static/plugins/datatables/dataTables.bootstrap.css"/>
+    <title>配送方式修改 - 管理平台 - 柯米思</title>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <header th:replace="common/header :: header"></header>
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside th:replace="common/aside :: aside('deliveryChange')"></aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                配送方式修改
+                <small>控制面板</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>主页</a></li>
+                <li class="active">配送方式修改</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-xs-2">
+                                    <input type="text" maxlength="32" class="form-control" name="searchExpressNumber" id="searchExpressNumber" placeholder="请输入单号"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <input type="text" maxlength="32" class="form-control" name="searchUserName" id="searchUserName" placeholder="请输入姓名"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <select id="searchWorkProcess" name="searchWorkProcess" class="form-control" style="width: 100%;">
+                                        <option selected="selected" value="">选则工序</option>
+                                        <option value="cutOrder">划单</option>
+                                        <option value="pickingGoods">捡货</option>
+                                        <option value="package">打包</option>
+                                        <option value="wrapp">包装</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-4">
+                                    <input type="text" class="form-control pull-right" name="reservationTime" id="reservationTime" placeholder="请选则时间"/>
+                                </div>
+                                <div class="col-xs-1">
+                                    <button id="ship-order-search" class="btn btn-info pull-right">搜索</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="result" disabled="">
+                <div class="col-xs-12">
+                    <div class="box box-primary">
+                        <div class="box-header hide">
+                            <!--<h3 class="box-title">查询结果</h3>-->
+                            <button type="button" id="batch-save-btn" data-toggle="modal" data-target="#changeBatchWorkProcessModal">批量修改工序</button>
+                        </div>
+                        <div class="box-body" id="div-table-container">
+                            <table id="table-work-process" cellspacing="0" class="table table-bordered table-hover display nowrap" width="100%">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" name="cb-check-all"/>
+                                    </th>
+                                    <th>
+                                        id
+                                    </th>
+                                    <th>
+                                        处理者
+                                    </th>
+                                    <th>
+                                        物流单号
+                                    </th>
+                                    <th>
+                                        工序
+                                    </th>
+                                    <th>
+                                        状态
+                                    </th>
+                                    <th>
+                                        处理时间
+                                    </th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--改处理者-->
+            <div class="modal fade" id="changeUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="changeUserModalLabel">改处理者</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id="changeUserForm">
+                                <input type="hidden" class="form-control" name="workProcessId"/>
+                                <div class="form-group">
+                                    <label for="userName" class="control-label">原处理者:</label>
+                                    <input type="text" class="form-control" name="userName" id="userName" disabled="disabled"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="targetUserId" class="control-label">更改为:</label>
+                                    <select id="targetUserId" name="targetUserId" class="form-control select2" style="width: 100%;"></select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="changeUserSave">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--改工序-->
+            <div class="modal fade" id="changeWorkProcessModal" tabindex="-2" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="changeWorkProcessLabel">改工序</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id="changeWorkProcessForm">
+                                <input type="hidden" class="form-control" name="workProcessId"/>
+                                <div class="form-group">
+                                    <label for="workProcess" class="control-label">原工序:</label>
+                                    <input type="text" class="form-control" name="workProcess" id="workProcess" disabled="disabled"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="targetWorkProcess" class="control-label">更改为:</label>
+                                    <select id="targetWorkProcess" name="targetWorkProcess" class="form-control select2" style="width: 100%;">
+                                        <option value="cutOrder">划单</option>
+                                        <option value="pickingGoods">捡货</option>
+                                        <option value="package">打包</option>
+                                        <option value="wrapp">包装</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="changeWorkProcessSave">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--改工序-->
+            <div class="modal fade" id="changeBatchWorkProcessModal" tabindex="-2" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="changeBatchWorkProcessLabel">批量修改工序</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id="changeBatchWorkProcessForm">
+                                <input type="hidden" class="form-control" name="workBatchProcessId"/>
+                                <div class="form-group">
+                                    <label for="targetBatchWorkProcess" class="control-label">修改为:</label>
+                                    <select id="targetBatchWorkProcess" name="targetBatchWorkProcess" class="form-control select2" style="width: 100%;">
+                                        <option value="cutOrder">划单</option>
+                                        <option value="pickingGoods">捡货</option>
+                                        <option value="package">打包</option>
+                                        <option value="wrapp">包装</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="changeBatchWorkProcessSave">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--改状态-->
+            <div class="modal fade" id="changeStatusModal" tabindex="-3" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="changeStatusLabel">改状态</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id="changeStatusForm">
+                                <input type="hidden" class="form-control" name="workProcessId"/>
+                                <div class="form-group">
+                                    <label for="status" class="control-label">原状态:</label>
+                                    <input type="text" class="form-control" name="status" id="status" disabled="disabled"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="targetStatus" class="control-label">更改为:</label>
+                                    <select id="targetStatus" name="targetStatus" class="form-control select" style="width: 100%;">
+                                        <option value="0">正常</option>
+                                        <option value="1">删除</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="changeStatusSave">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    <footer th:replace="common/footer :: footer"></footer>
+
+    <div th:replace="common/control_aside :: control_aside"></div>
+</div>
+<!-- ./wrapper -->
+
+<div th:replace="common/script :: script"></div>
+<div th:replace="common/table_script :: table_script"></div>
+<script type="text/javascript">
+    /*<![CDATA[*/
+    var _table;
+    $(function () {
+        $('#reservationTime').daterangepicker();
+
+        var $wrapper = $('#div-table-container');
+        var $table = $('#table-work-process');
+        workProcessManage.token = $('#_csrf').attr('content');
+        workProcessManage.header = $('#_csrf_header').attr('content');
+
+        _table = $table.DataTable($.extend(true, {}, CONSTANT.DATA_TABLES.DEFAULT_OPTION, {
+            bSort: false,
+            ajax: function (data, callback, settings) {//ajax配置为function,手动调用异步查询
+                if(!workProcessManage.start) return;
+                //手动控制遮罩
+                $wrapper.spinModal();
+                //封装请求参数
+                var param = workProcessManage.getQueryCondition(data);
+                $.ajax({
+                    type: "GET",
+                    url: "/admin/scanException/revisionList",
+                    cache: false,  //禁用缓存
+                    data: param,    //传入已封装的参数
+                    dataType: "json",
+                    success: function (data) {
+                        //关闭遮罩
+                        $wrapper.spinModal(false);
+                        setTimeout(function () {
+                            if (data.code != "0" ) {
+                                alert(data.msg);
+                                return;
+                            }
+                            //封装返回数据
+                            var returnData = {};
+                            returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+                            returnData.recordsTotal = data.total;//返回数据全部记录
+                            returnData.recordsFiltered = data.total;//后台不实现过滤功能，每次查询均视作全部结果
+                            returnData.data = data.data;//返回的数据列表
+                            if (data.total > 0) {
+                                $(".box-header").removeClass("hide");
+                            }else{
+                                $(".box-header").addClass("hide");
+                            }
+                            callback(returnData);
+                        },200);
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        $wrapper.spinModal(false);
+                        alert("查询失败");
+                    }
+                });
+            },
+            "columns": [
+                CONSTANT.DATA_TABLES.COLUMN.CHECKBOX,
+                { "data": "workProcessId", "title":"id","defaultContent":"","visible": false},
+                { "data": "userName", "title":"处理者","defaultContent":""},
+                { "data": "expressNumber", "title":"物流单号","defaultContent":""},
+                { "data": "workProcess", "title":"工序","defaultContent":""},
+                { "data": "status", "title":"状态","defaultContent":"",
+                    render: function (data, type, row, meta) {
+                        return data == '0' ? "<font color='green'>正常</font>" : "<font color='red'>删除</font>";
+                    }
+                },
+                { "data": "createTime", "title":"处理时间","defaultContent":""},
+                {
+                    "data": null, "title": "操作", "defaultContent": "",
+                    render: function (dat, type, row, meta) {
+                        var result = "" +
+                                "<button type='button' class='btn btn-primary' data-toggle='modal' data-target='#changeUserModal'" +
+                                "data-workProcessId='"+row.workProcessId+"' data-userName='"+row.userName+"'>改处理者</button>&nbsp;&nbsp;" +
+                                "<button type='button' class='btn btn-primary' data-toggle='modal' data-target='#changeWorkProcessModal'" +
+                                "data-workProcessId='"+row.workProcessId+"' data-workProcess='"+row.workProcess+"'>改工序</button>&nbsp;&nbsp;" +
+                                "<button type='button' class='btn btn-primary' data-toggle='modal' data-target='#changeStatusModal'" +
+                                "data-workProcessId='"+row.workProcessId+"' data-status='"+row.status+"'>改状态</button>";
+                        return result;
+
+                    }
+                }
+            ],
+            "drawCallback": function( settings ) {
+                //渲染完毕后的回调
+                //清空全选状态
+                $(":checkbox[name='cb-check-all']",$wrapper).prop('checked', false);
+
+            }
+        }));
+
+        $(".select2").select2();
+        //初始化用户 select
+        workProcessManage.initUserSelect();
+
+        //搜索
+        $("#ship-order-search").click(function () {
+            workProcessManage.start = true;
+            _table.draw();
+        });
+
+        $wrapper.on("change",":checkbox",function() {
+            if ($(this).is("[name='cb-check-all']")) {
+                //全选
+                $(":checkbox",$table).prop("checked",$(this).prop("checked"));
+            }else{
+                //一般复选
+                var checkbox = $("tbody :checkbox",$table);
+                $(":checkbox[name='cb-check-all']",$table).prop('checked', checkbox.length == checkbox.filter(':checked').length);
+            }
+        });
+
+        //改处理者弹窗
+        $('#changeUserModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var workProcessId = button.data('workprocessid');
+            var userName = button.data('username');
+            console.log(workProcessId+"  "+userName);
+            var modal = $(this);
+            modal.find('.modal-body input[name="workProcessId"]').val(workProcessId);
+            modal.find('.modal-body input[name="userName"]').val(userName);
+
+        });
+
+        //改处理者保存
+        $("#changeUserSave").on("click",function(e){
+            e.preventDefault();
+            workProcessManage.changeUserSave();
+            $('#changeUserModal').modal('hide');
+        });
+
+        //改工序弹窗
+        $('#changeWorkProcessModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var workProcessId = button.data('workprocessid');
+            var workProcess = button.data('workprocess');
+            console.log(workProcessId+"  "+userName);
+            var modal = $(this);
+            modal.find('.modal-body input[name="workProcessId"]').val(workProcessId);
+            modal.find('.modal-body input[name="workProcess"]').val(workProcess);
+        });
+
+        //改工序保存
+        $("#changeWorkProcessSave").on("click",function(e){
+            e.preventDefault();
+            workProcessManage.changeWorkProcessSave();
+            $('#changeWorkProcessModal').modal('hide');
+        });
+
+        //改状态弹窗
+        $('#changeStatusModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var workProcessId = button.data('workprocessid');
+            var status = button.data('status');
+            status = (status == 0) ? "正常" : "删除";
+            console.log(workProcessId+"  "+status);
+            var modal = $(this);
+            modal.find('.modal-body input[name="workProcessId"]').val(workProcessId);
+            modal.find('.modal-body input[name="status"]').val(status);
+        });
+
+        //改状态保存
+        $("#changeStatusSave").on("click",function(e){
+            e.preventDefault();
+            workProcessManage.changeStatusSave();
+            $('#changeStatusModal').modal('hide');
+        });
+
+        //批量修改工序弹窗
+        $("#batch-save-btn").click(function(){
+            var workProcessIds = [];
+            $("tbody :checkbox:checked",$table).each(function(i) {
+                var item = _table.row($(this).closest('tr')).data();
+                workProcessIds.push(item.workProcessId);
+            });
+            //改状态弹窗
+            $('#changeBatchWorkProcessModal').on('show.bs.modal', function (event) {
+                console.log(workProcessIds);
+                var modal = $(this);
+                modal.find('.modal-body input[name="workBatchProcessId"]').val(workProcessIds);
+            });
+        });
+
+        //批量修改工序保存
+        $("#changeBatchWorkProcessSave").on("click",function(e){
+            e.preventDefault();
+            workProcessManage.changeBatchWorkProcessSave();
+            $('#changeBatchWorkProcessModal').modal('hide');
+        });
+
+    });
+
+    var workProcessManage = {
+        start: false,
+        token: null,
+        header: null,
+        getQueryCondition: function (data) {
+            var param = {};
+
+            param.expressNumber = $("input[name='searchExpressNumber']").val();
+            param.realName = $("input[name='searchUserName']").val();
+            param.workProcess = $("#searchWorkProcess").val();
+            param.reservationTime = $("input[name='reservationTime']").val();
+
+            //组装分页参数
+            param.start = data.start;
+            param.limit = data.length;
+            param.draw = data.draw;
+
+            return param;
+        },
+        initUserSelect: function () {
+            $.ajax({
+                url: "/user/usersForSelect",
+                type: "get",
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(workProcessManage.header, workProcessManage.token);
+                },
+                success: function (data) {
+                    if (data && data.data) {
+                        var list = data.data;
+                        for (var i = 0; i < list.length; i++) {
+                            $("#targetUserId").append("<option value='" + list[i].sysUserId + "'>" + list[i].realName + "</option>");  //添加一项option
+                        }
+                    }
+                },
+                error: function (e) {
+                    alert("用户列表初始化失败,请稍后再试.");
+                }
+            });
+        },
+        changeUserSave: function () {
+            var form = new FormData($("#changeUserForm")[0]);
+            $.ajax({
+                url: "/admin/scanException/saveTargetUser",
+                type: "POST",
+                data:form,
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(workProcessManage.header, workProcessManage.token);
+                },
+                success: function (data) {
+                    if(data.code != "0"){
+                        alert(data.msg);
+                    }
+                    _table.draw();
+                },
+                error: function (e) {
+                    alert("服务器未正常响应，请重试");
+                }
+            });
+        },
+        changeWorkProcessSave: function () {
+            var form = new FormData($("#changeWorkProcessForm")[0]);
+            $.ajax({
+                url: "/admin/scanException/saveTargetWorkProcess",
+                type: "POST",
+                data:form,
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(workProcessManage.header, workProcessManage.token);
+                },
+                success: function (data) {
+                    if(data.code != "0"){
+                        alert(data.msg);
+                    }
+                    _table.draw();
+                },
+                error: function (e) {
+                    alert("服务器未正常响应，请重试");
+                }
+            });
+        },
+        changeStatusSave: function () {
+            var form = new FormData($("#changeStatusForm")[0]);
+            $.ajax({
+                url: "/admin/scanException/saveTargetStatus",
+                type: "POST",
+                data:form,
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(workProcessManage.header, workProcessManage.token);
+                },
+                success: function (data) {
+                    if(data.code != "0"){
+                        alert(data.msg);
+                    }
+                    _table.draw();
+                },
+                error: function (e) {
+                    alert("服务器未正常响应，请重试");
+                }
+            });
+        },
+        changeBatchWorkProcessSave: function () {
+            var form = new FormData($("#changeBatchWorkProcessForm")[0]);
+            $.ajax({
+                url: "/admin/scanException/saveBatchWorkProcess",
+                type: "POST",
+                data:form,
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(workProcessManage.header, workProcessManage.token);
+                },
+                success: function (data) {
+                    alert(data.msg);
+                    _table.draw();
+                },
+                error: function (e) {
+                    alert("服务器未正常响应，请重试");
+                }
+            });
+        }
+    };
+    /*]]>*/
+</script>
+</body>
+</html>

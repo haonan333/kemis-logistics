@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kemis.dao.mapper.SysRoleMapper">
+
+    <resultMap id="RoleResultMap" type="cn.kemis.domain.SysRoleDomain">
+        <id property="sysRoleId" column="sysRoleId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result property="roleName" column="roleName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="roleDesc" column="roleDesc" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="permissionName" column="permissionName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <collection property="sysModules" ofType="cn.kemis.domain.SysModuleDomain" column="moduleId" javaType="ArrayList" jdbcType="INTEGER">
+            <id property="sysModuleId" column="sysModuleId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+            <result property="moduleName" column="moduleName" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <result property="moduleUrl" column="moduleUrl" javaType="java.lang.String" jdbcType="VARCHAR" />
+        </collection>
+    </resultMap>
+
+    <select id="selectRoleDomainByUserId" resultMap="RoleResultMap">
+        SELECT sr.sysRoleId, sr.roleName, sr.roleDesc, sr.RoleParentId, sr.permissionName, sm.sysModuleId, sm.moduleName, sm.moduleUrl
+        FROM sys_role sr
+          LEFT JOIN sys_user_has_sys_role susr ON sr.sysRoleId = susr.roleId
+          LEFT JOIN sys_role_has_sys_module srsm ON srsm.roleId = sr.sysRoleId
+          LEFT JOIN sys_module sm ON sm.sysModuleId = srsm.moduleId
+        WHERE  susr.userId =  #{id}
+    </select>
+</mapper>

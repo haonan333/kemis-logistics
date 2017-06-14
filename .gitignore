@@ -1,0 +1,43 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Java template
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+#logistics-web/.mvn/wrapper/maven-wrapper.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+.DS_Store
+.idea/
+security-sample.iml
+target/
+logistics-system.iml
+
+logistics-web/logistics-web.iml
+logistics-web/target
+
+logistics-generated/logistics-generated.iml
+logistics-generated/target
+
+logistics-client/logistics-client.iml
+logistics-client/target
+### Java template
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+#*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+

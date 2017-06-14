@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kemis.dao.mapper.SysUserMapper">
+
+    <resultMap id="WithRoleResultMap" type="cn.kemis.domain.SysUserDomain">
+        <constructor>
+            <idArg column="sysUserId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+            <arg column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="realName" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="mobile" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="email" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="avatar" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="loginCount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+            <arg column="lastLogin" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+            <arg column="status" javaType="java.lang.Byte" jdbcType="TINYINT" />
+            <arg column="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+            <arg column="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        </constructor>
+        <collection property="roleList" ofType="cn.kemis.model.SysRole" column="sysRoleId" javaType="ArrayList">
+            <id property="sysRoleId" column="sysRoleId" javaType="Integer" jdbcType="INTEGER"/>
+            <result property="roleName" column="roleName" javaType="string" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+    <sql id="Join_Column_List">
+        su.sysUserId, su.username, su.userCode, su.realName, su.mobile, su.email, su.address, su.avatar,
+        su.loginCount, su.lastLogin, su.`status`, su.createTime, su.updateTime
+    </sql>
+    <select id="selectWithRoleByRecord" resultType="cn.kemis.domain.SysUserDomain" resultMap="WithRoleResultMap">
+        select
+        <include refid="Join_Column_List" />, sr.sysRoleId, sr.roleName
+        from sys_user su LEFT JOIN sys_user_has_sys_role susr ON su.sysUserId = susr.userId
+          LEFT JOIN sys_role sr ON susr.roleId = sr.sysRoleId
+        <where>
+            <if test="realName != null and realName != ''">
+                and su.realName = #{realName}
+            </if>
+            <if test="status != null">
+                and su.status = #{status}
+            </if>
+        </where>
+        order by sysUserId desc
+    </select>
+</mapper>
